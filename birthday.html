@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Poppins;
+}
+
+body{
+background:#020214;
+color:white;
+text-align:center;
+overflow-x:hidden;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-2;
+}
+
+#constellation{
+z-index:-1;
+}
+
+.container{
+max-width:800px;
+margin:auto;
+padding:40px 20px;
+}
+
+h1{
+font-size:3rem;
+margin-top:20px;
+}
+
+p{
+margin-top:20px;
+opacity:0.9;
+}
+
+/* CAKE */
+
+.cake{
+margin:50px auto;
+position:relative;
+width:120px;
+}
+
+.layer{
+background:#ff77aa;
+height:30px;
+border-radius:6px;
+margin:4px 0;
+}
+
+.candle{
+width:10px;
+height:40px;
+background:white;
+margin:auto;
+position:relative;
+}
+
+.flame{
+width:14px;
+height:14px;
+background:orange;
+border-radius:50%;
+position:absolute;
+top:-12px;
+left:-2px;
+animation:flicker 0.4s infinite alternate;
+}
+
+@keyframes flicker{
+from{transform:scale(1)}
+to{transform:scale(1.3)}
+}
+
+/* BUTTON */
+
+button{
+margin-top:30px;
+padding:12px 24px;
+border:none;
+border-radius:30px;
+background:#ff4da6;
+color:white;
+font-size:16px;
+cursor:pointer;
+}
+
+/* CONFETTI */
+
+.confetti{
+position:fixed;
+width:10px;
+height:10px;
+top:-10px;
+animation:fall linear forwards;
+}
+
+@keyframes fall{
+to{transform:translateY(100vh) rotate(720deg);}
+}
+
+/* GALLERY */
+
+.gallery{
+margin-top:40px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+gap:12px;
+}
+
+.gallery img{
+width:100%;
+border-radius:10px;
+transition:0.4s;
+}
+
+.gallery img:hover{
+transform:scale(1.1);
+}
+
+/* LETTER */
+
+.letter{
+max-width:500px;
+margin:auto;
+background:white;
+color:#333;
+padding:25px;
+border-radius:10px;
+margin-top:20px;
+display:none;
+}
+
+/* GIFT */
+
+.gift-box{
+width:120px;
+height:120px;
+margin:40px auto;
+position:relative;
+cursor:pointer;
+}
+
+.box{
+width:120px;
+height:80px;
+background:#ff6aa9;
+position:absolute;
+bottom:0;
+border-radius:6px;
+}
+
+.lid{
+width:120px;
+height:30px;
+background:#ff3d8c;
+position:absolute;
+top:0;
+border-radius:6px;
+transition:0.6s;
+}
+
+#cat{
+width:90px;
+position:absolute;
+bottom:60px;
+left:15px;
+display:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="stars"></canvas>
+<canvas id="constellation"></canvas>
+
+<div class="container">
+
+<h1>✨ Happy Birthday ✨</h1>
+
+<p>May your year shine as bright as the stars above.</p>
+
+<!-- CAKE -->
+
+<div class="cake">
+<div class="candle"><div class="flame"></div></div>
+<div class="layer"></div>
+<div class="layer"></div>
+<div class="layer"></div>
+</div>
+
+<button onclick="confetti()">Celebrate 🎉</button>
+
+<!-- GALLERY -->
+
+<h2 style="margin-top:60px;">📸 Photo Gallery</h2>
+
+<div class="gallery">
+<img src="photo1.jpg">
+<img src="photo2.jpg">
+<img src="photo3.jpg">
+<img src="photo4.jpg">
+</div>
+
+<!-- LETTER -->
+
+<h2 style="margin-top:70px;">💌 A Small Letter</h2>
+
+<button onclick="openLetter()">Open Letter ✉️</button>
+
+<div id="letter" class="letter">
+<p>
+
+Hey!
+
+I just wanted to say I'm really glad you exist.
+
+You make ordinary days brighter just by being yourself.
+
+I hope this birthday gives you lots of smiles,
+good memories, and moments you'll never forget.
+
+Stay awesome ⭐
+
+</p>
+</div>
+
+<!-- GIFT -->
+
+<h2 style="margin-top:70px;">🎁 A Small Gift</h2>
+
+<div class="gift-box" onclick="openGift()">
+
+<div class="lid"></div>
+<div class="box"></div>
+
+<img id="cat" src="cat.png">
+
+</div>
+
+</div>
+
+<!-- MUSIC -->
+
+<audio autoplay loop>
+<source src="birthday.mp3" type="audio/mp3">
+</audio>
+
+<script>
+
+/* 3D STARFIELD */
+
+const canvas = document.getElementById("stars");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let stars=[];
+
+for(let i=0;i<200;i++){
+stars.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+z:Math.random()*canvas.width
+});
+}
+
+function animateStars(){
+
+ctx.fillStyle="black";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+for(let star of stars){
+
+star.z-=2;
+
+if(star.z<=0){
+star.z=canvas.width;
+}
+
+let k = 128/star.z;
+let px = star.x*k + canvas.width/2;
+let py = star.y*k + canvas.height/2;
+
+let size=(1-star.z/canvas.width)*3;
+
+ctx.fillStyle="white";
+ctx.fillRect(px,py,size,size);
+
+}
+
+requestAnimationFrame(animateStars);
+
+}
+
+animateStars();
+
+/* SHOOTING STARS */
+
+function shootingStar(){
+
+const star=document.createElement("div");
+
+star.style.position="fixed";
+star.style.top=Math.random()*window.innerHeight+"px";
+star.style.left="-100px";
+star.style.width="3px";
+star.style.height="3px";
+star.style.background="white";
+star.style.boxShadow="0 0 10px white";
+
+document.body.appendChild(star);
+
+let pos=0;
+
+let move=setInterval(()=>{
+
+pos+=20;
+
+star.style.left=pos+"px";
+
+if(pos>window.innerWidth+200){
+clearInterval(move);
+star.remove();
+}
+
+},30);
+
+}
+
+setInterval(shootingStar,3000);
+
+/* CONFETTI */
+
+function confetti(){
+
+for(let i=0;i<120;i++){
+
+let c=document.createElement("div");
+
+c.classList.add("confetti");
+
+c.style.left=Math.random()*100+"vw";
+c.style.background="hsl("+Math.random()*360+",100%,50%)";
+c.style.animationDuration=(2+Math.random()*3)+"s";
+
+document.body.appendChild(c);
+
+setTimeout(()=>c.remove(),5000);
+
+}
+
+}
+
+/* LETTER */
+
+function openLetter(){
+document.getElementById("letter").style.display="block";
+}
+
+/* GIFT */
+
+function openGift(){
+
+document.querySelector(".lid").style.transform="translateY(-50px) rotate(-20deg)";
+document.getElementById("cat").style.display="block";
+
+}
+
+/* CONSTELLATION NAME */
+
+const c = document.getElementById("constellation");
+const ctx2 = c.getContext("2d");
+
+c.width = window.innerWidth;
+c.height = window.innerHeight;
+
+const name="ANANYA";
+
+let points=[];
+
+function createConstellation(){
+
+points=[];
+
+let startX=c.width/2-name.length*25;
+
+for(let i=0;i<name.length;i++){
+
+let x=startX+i*50;
+let y=c.height/3+Math.random()*40;
+
+points.push({x,y});
+
+}
+
+}
+
+createConstellation();
+
+function drawConstellation(){
+
+ctx2.clearRect(0,0,c.width,c.height);
+
+ctx2.fillStyle="white";
+
+for(let p of points){
+
+ctx2.beginPath();
+ctx2.arc(p.x,p.y,3,0,Math.PI*2);
+ctx2.fill();
+
+}
+
+ctx2.strokeStyle="rgba(255,255,255,0.5)";
+ctx2.beginPath();
+
+for(let i=0;i<points.length;i++){
+
+if(i===0)
+ctx2.moveTo(points[i].x,points[i].y);
+else
+ctx2.lineTo(points[i].x,points[i].y);
+
+}
+
+ctx2.stroke();
+
+ctx2.font="20px Poppins";
+ctx2.fillText(name,c.width/2-name.length*6,c.height/3+60);
+
+requestAnimationFrame(drawConstellation);
+
+}
+
+drawConstellation();
+
+</script>
+
+</body>
+</html>
